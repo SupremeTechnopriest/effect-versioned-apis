@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "noErrorTruncation": true,
+    "baseUrl": "./",
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
