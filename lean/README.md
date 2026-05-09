@@ -53,6 +53,7 @@ src/
 ### Per-version (one file per version, top-level)
 
 **`http/v{N}.ts`** -- three things in one file:
+
 1. The version's top-level `HttpApi` (mounts groups, applies prefix).
 2. Handler bindings (`HttpApiBuilder.group` calls).
 3. The merged layer with middleware.
@@ -62,6 +63,7 @@ These three things are tightly coupled so splitting them just creates files that
 ## Version Divergence
 
 The create endpoint diverges across versions:
+
 - **v0**: `{title}` -> `{id, userId, title}`
 - **v1**: `{title, done}` -> `{id, userId, title, done}`
 - **v2**: `{title, done, priority}` -> full Todo
@@ -85,11 +87,13 @@ List, get, and delete are unchanged across all versions (always return the full 
 ## Tradeoffs
 
 **Strengths:**
+
 - Fast to scan -- few files, low indirection.
 - Adding a new endpoint is 2 changes (factory + handler), not 4+.
 - The combined `http/v{N}.ts` keeps tightly-coupled pieces together.
 
-**Friction (cognitive overhead):**
+**Friction:**
+
 - **Low file count hides coupling.** A single `http/v*.ts` bundles the API shape, handler bindings, and middleware wiring. You hold three concerns in working memory simultaneously, and a change to any one requires re-reading the others.
 - **Inline schemas blur boundaries.** Version-specific wire shapes live inside the group file alongside group composition logic. Reasoning about "what does the wire look like?" and "how is the group assembled?" requires parsing both at once rather than navigating to a dedicated location.
 - **Scanning cost grows linearly with domains.** Each domain adds a binding block to the version file. With many domains, reading or modifying a single version means mentally skipping over unrelated binding blocks to find the one you care about.

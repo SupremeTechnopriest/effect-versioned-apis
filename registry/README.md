@@ -43,9 +43,7 @@ export const todoVersions = {
 Each per-version `http/v{N}.ts` imports from the registry:
 
 ```typescript
-export const api = HttpApi.make("v2")
-  .add(todoVersions.v2)
-  .prefix("/v2");
+export const api = HttpApi.make("v2").add(todoVersions.v2).prefix("/v2");
 ```
 
 ## Design Principles
@@ -57,6 +55,7 @@ export const api = HttpApi.make("v2")
 ## Version Divergence
 
 The create endpoint diverges across versions:
+
 - **v0** (baseline): `{title}` -> `{id, userId, title}`
 - **v1**: `{title, done}` -> `{id, userId, title, done}`
 - **v2**: `{title, done, priority}` -> full Todo
@@ -85,12 +84,14 @@ In production, you'd automate steps 1-4 with a `drop` script. The type-checker c
 ## Tradeoffs
 
 **Strengths:**
+
 - Per-bump churn is proportional to actual divergence, not total domain count. A version bump that touches 1 of 10 domains creates 1 new group file, not 10.
 - The registry gives full lifecycle visibility in one file per domain.
 - Carry-forward is explicit and free (one line).
 - The pattern scales well for many domains with a rolling deprecation window.
 
-**Friction (cognitive overhead):**
+**Friction:**
+
 - **Indirection as cognitive load.** The relationship between "what a version exposes" (the registry entry) and "how it's served" (the http binding) is indirect. You must hold two separate locations in mind and mentally connect them -- neither file tells the full story alone.
 - **Baseline ambiguity.** "Baseline" can mean the initial shape or the unchanged carry-forward group. When multiple divergence points exist across a domain's history, interpreting which baseline applies requires context that isn't in the filename.
 - **Pattern knowledge prerequisite.** The registry concept itself must be learned before any code makes sense. Unlike the verbose approach (where file-system structure is self-documenting) or the terse approach (where everything is in one place), the registry pattern offers no affordance to a developer who hasn't been taught it.

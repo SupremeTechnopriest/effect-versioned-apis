@@ -82,6 +82,7 @@ src/
 ## Version Divergence
 
 The create endpoint diverges across versions:
+
 - **v0**: `{title}` -> `{id, userId, title}` (schemas/v0.ts)
 - **v1**: `{title, done}` -> `{id, userId, title, done}` (schemas/v1.ts)
 - **v2**: `{title, done, priority}` -> full Todo (schemas/v2.ts)
@@ -98,12 +99,14 @@ Each version's schema file is independently importable for codegen, contract tes
 ## Tradeoffs
 
 **Strengths:**
+
 - Maximum explicitness -- every concept has a dedicated, findable file.
 - IDE navigability is excellent: "Go to Definition" always lands in a focused file.
 - Schemas are independently importable for tooling (codegen, contract testing, client SDKs).
 - Code ownership boundaries are natural (different teams can own different files).
 
-**Friction (cognitive overhead):**
+**Friction:**
+
 - **Large mental map.** Understanding a single endpoint's full lifecycle -- schema, factory, handler, group, binding, api -- requires holding 5-6 file locations in working memory. The per-file simplicity is offset by the number of places you must know about.
 - **High navigation tax.** Each small change (e.g. adding a field to the create payload) requires touching and reasoning about 4+ files. The cost is paid in context switches, not in per-file complexity.
 - **Placeholder files add noise.** Files that exist solely for structural consistency (e.g. a schema file that re-exports the model unchanged) increase the surface area a developer must mentally track without adding information. You learn to ignore them, but that filtering itself is overhead.

@@ -68,11 +68,16 @@ export const v0 = {
   createResponse: WireResponseV0.pipe(
     Schema.decodeTo(Todo, {
       decode: SchemaGetter.transform((wire) => ({
-        id: wire.id, userId: wire.userId, title: wire.title,
-        done: false, priority: 0,
+        id: wire.id,
+        userId: wire.userId,
+        title: wire.title,
+        done: false,
+        priority: 0,
       })),
       encode: SchemaGetter.transform((todo) => ({
-        id: todo.id, userId: todo.userId, title: todo.title,
+        id: todo.id,
+        userId: todo.userId,
+        title: todo.title,
       })),
     }),
   ),
@@ -89,6 +94,7 @@ export const v0 = {
 ## Version Divergence
 
 The create endpoint diverges across versions:
+
 - **v0**: wire `{title}` → canonical `{title, done: false, priority: 0}`; response projects `{id, userId, title}`
 - **v1**: wire `{title, done}` → canonical `{title, done, priority: 0}`; response projects `{id, userId, title, done}`
 - **v2**: canonical directly -- no transform needed
@@ -104,11 +110,13 @@ All divergence is expressed as transforms in `wire.ts`. The handler bindings in 
 ## When to Escalate
 
 Schema transforms work well for:
+
 - Adding fields (older versions fill defaults)
 - Narrowing responses (older versions project fewer fields)
 - Changing defaults (modify transform logic, not handler)
 
 They do **not** work well for:
+
 - Renaming fields where old name must remain on the wire (transform works but becomes confusing at scale)
 - Reshaping nested objects (e.g. flattening `address.city` → `city`)
 - Splitting a resource into two separate endpoints
@@ -119,12 +127,14 @@ At that point, reach for lean, explicit, or registry which give you full control
 ## Tradeoffs
 
 **Strengths:**
+
 - Handler bindings are version-agnostic -- identical across all versions, no manual projections.
 - Wire shapes are explicit structs -- you can read exactly what each version sends/receives.
 - Transforms are colocated with wire definitions -- the full version contract is in one place.
 - Adding a version is mechanical: define wire schema, write transform, done.
 
-**Friction (cognitive overhead):**
+**Friction:**
+
 - **Derived types are opaque in IDE tooltips.** Hovering a `Schema.decodeTo(...)` result shows the transform chain, not the resolved struct. You must look at the wire schema definition to understand what goes over the wire.
 - **Only works for small, linear changes.** Schema transforms handle additive field evolution well, but larger structural changes (reshaping nested objects, splitting resources) produce transform functions that are harder to reason about than just defining a separate group. At that point, escalate to one of the other patterns.
 - **Refactoring the canonical type has blast radius.** Renaming or removing a field in `Todo` breaks all transform functions that reference it. The errors are immediate and numerous -- every version's transform surfaces the issue simultaneously.
