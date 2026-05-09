@@ -89,7 +89,7 @@ export const v0 = {
 - **Handlers are version-unaware.** They always receive and return the canonical type. No `Effect.map` projections at binding sites.
 - **Wire shapes are explicit.** Each version's wire schema is defined as a concrete struct -- you can read exactly what goes over the wire.
 - **Transforms are colocated.** The mapping between wire and canonical lives right next to the wire definition. No hunting through binding code to understand what's projected.
-- **Reach for this first.** Schema transforms handle linear, additive evolution. Only escalate to lean/explicit/registry when changes are structural.
+- **Reach for this first.** Schema transforms handle linear, additive evolution. Only escalate to [lean](../lean/), [explicit](../explicit/), or [registry](../registry/) when changes are structural.
 
 ## Version Divergence
 
@@ -122,7 +122,7 @@ They do **not** work well for:
 - Splitting a resource into two separate endpoints
 - Removing an endpoint entirely from a version
 
-At that point, reach for lean, explicit, or registry which give you full control over the version's group composition.
+At that point, reach for [lean](../lean/), [explicit](../explicit/), or [registry](../registry/) which give you full control over the version's group composition.
 
 ## Tradeoffs
 
@@ -136,5 +136,5 @@ At that point, reach for lean, explicit, or registry which give you full control
 **Friction:**
 
 - **Derived types are opaque in IDE tooltips.** Hovering a `Schema.decodeTo(...)` result shows the transform chain, not the resolved struct. You must look at the wire schema definition to understand what goes over the wire.
-- **Only works for small, linear changes.** Schema transforms handle additive field evolution well, but larger structural changes (reshaping nested objects, splitting resources) produce transform functions that are harder to reason about than just defining a separate group. At that point, escalate to one of the other patterns.
+- **Only works for small, linear changes.** Schema transforms handle additive field evolution well, but larger structural changes (reshaping nested objects, splitting resources) produce transform functions that are harder to reason about than just defining a separate group. At that point, escalate to [lean](../lean/), [explicit](../explicit/), or [registry](../registry/).
 - **Refactoring the canonical type has blast radius.** Renaming or removing a field in `Todo` breaks all transform functions that reference it. The errors are immediate and numerous -- every version's transform surfaces the issue simultaneously.
